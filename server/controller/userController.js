@@ -23,15 +23,23 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "User already exists" });
     }
 
+    let imgSrc = null;
+    if (profileImage) {
+        const result = await cloudinary.uploader.upload(image, {
+            resource_type: "image",
+        });
+        imgSrc = result.secure_url;
+    }
+
     const user = await User.create({
       name,
       email,
-      password, // 🔹 Will be hashed in pre-save middleware
+      password, 
       role,
-      profileImage,
+      profileImage: imgSrc,
       phone,
     });
-
+    
     if (user) {
       res.status(201).json({
         success: true,
